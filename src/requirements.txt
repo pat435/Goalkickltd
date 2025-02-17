@@ -1,7 +1,7 @@
 bybit
 pybit
 ccxt==4.1.84
-numpy
+numpy==1.26.4
 pandas
 pandas-ta==0.3.14b0
 python-dotenv==1.0.0
