@@ -1,25 +1,8 @@
-# bybit
-# pandas
-# numpy
-# matplotlib
-# seaborn
-# six
-# python-dotenv
-# ccxt==4.1.84
-# ta-lib==0.4.20
-# python-dotenv==1.0.0
-# asyncio==3.4.3
-# logging==0.5.1.2
-
-
+bybit
+pybit
 ccxt==4.1.84
 numpy==1.22.4
 pandas==2.0.1
 pandas-ta==0.3.14b0
 python-dotenv==1.0.0
 asyncio==3.4.3
-
-requests
-beautifulsoup4
-chromadb
-openai
