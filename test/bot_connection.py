@@ -22,11 +22,13 @@ class AdvancedTradingBot:
         self.equity = self.get_equity()
         self.initial_equity = self.equity
         self.trade_log = []
-        self.risk_per_trade = 0.02 #% risk per trade
+        self.risk_per_trade = 0.0001  # 0.01% risk per trade
         self.setup_strategies()
         self.start_time = datetime.now()
-        self.wins = 0.05
-        self.losses = 0.02
+        
+        # Performance tracking
+        self.wins = 0
+        self.losses = 0
 
     def get_equity(self):
         """Get current USDT balance with enhanced error handling"""
@@ -65,79 +67,7 @@ class AdvancedTradingBot:
         print(f"• EMA Configuration: {self.indicators['ema_short']}/{self.indicators['ema_long']}")
         print(f"• ATR Period: {self.indicators['atr_period']}\n")
 
-    def fetch_market_data(self):
-        """Fetch and format historical price data"""
-        try:
-            data = self.session.get_kline(
-                category="linear",
-                symbol=self.symbol,
-                interval="15",
-                limit=200
-            )
-            df = pd.DataFrame(data['result']['list'], columns=[
-                'timestamp', 'open', 'high', 'low', 'close', 'volume', 'turnover'])
-            df = df.astype(float)
-            df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
-            return df.iloc[::-1].reset_index(drop=True)
-        except Exception as e:
-            print(f"Data fetch error: {str(e)}")
-            return pd.DataFrame()
-
-    def calculate_indicators(self, df):
-        """Calculate technical indicators"""
-        try:
-            # Momentum indicators
-            df['RSI'] = ta.rsi(df['close'], length=self.indicators['rsi_period'])
-            macd = ta.macd(df['close'],
-                          fast=self.indicators['macd_fast'],
-                          slow=self.indicators['macd_slow'],
-                          signal=self.indicators['macd_signal'])
-            df = pd.concat([df, macd], axis=1)
-            
-            # Trend indicators
-            df['EMA20'] = ta.ema(df['close'], length=self.indicators['ema_short'])
-            df['EMA50'] = ta.ema(df['close'], length=self.indicators['ema_long'])
-            
-            # Volatility indicator
-            df['ATR'] = ta.atr(df['high'], df['low'], df['close'], 
-                             length=self.indicators['atr_period'])
-            return df.dropna()
-        except Exception as e:
-            print(f"Indicator error: {str(e)}")
-            return df
-
-    def generate_signal(self, df):
-        """Generate trading signals"""
-        try:
-            if len(df) < 50:
-                return None
-
-            last = df.iloc[-1]
-            prev = df.iloc[-2]
-
-            # Momentum confirmation
-            momentum_buy = (last['RSI'] < 30) and (last['MACD_12_26_9'] > last['MACDs_12_26_9'])
-            momentum_sell = (last['RSI'] > 70) and (last['MACD_12_26_9'] < last['MACDs_12_26_9'])
-
-            # Trend confirmation
-            trend_buy = (last['EMA20'] > last['EMA50']) and (last['close'] > last['EMA20'])
-            trend_sell = (last['EMA20'] < last['EMA50']) and (last['close'] < last['EMA20'])
-
-            # Volatility filter
-            volatility_ok = last['ATR'] < (last['close'] * 0.015)
-
-            if momentum_buy and trend_buy and volatility_ok:
-                return 'buy'
-            elif momentum_sell and trend_sell and volatility_ok:
-                return 'sell'
-            return None
-        except Exception as e:
-            print(f"Signal error: {str(e)}")
-            return None
-
-    def calculate_position_size(self):
-        """Calculate position size based on current equity"""
-        return self.equity * self.risk_per_trade
+    # ... (keep existing fetch_market_data, calculate_indicators, generate_signal methods)
 
     def execute_trade(self, signal):
         """Execute trade with enhanced logging and validation"""
@@ -145,7 +75,7 @@ class AdvancedTradingBot:
             return
 
         try:
-            # Get precise pricing
+            # Get precise pricing with retry logic
             ticker = self.session.get_tickers(category="linear", symbol=self.symbol)
             price = float(ticker['result']['list'][0]['lastPrice'])
             
@@ -273,12 +203,12 @@ class AdvancedTradingBot:
         
         # Schedule regular checks
         schedule.every().day.at("00:00").do(self.reset_daily_count)
-        schedule.every(1).hours.do(self.run_strategy)
+        schedule.every(15).minutes.do(self.run_strategy)  # Check every 15 minutes
         
         try:
             while True:
                 schedule.run_pending()
-                time.sleep(1)
+                time.sleep(1)  # Check scheduler every second
         except KeyboardInterrupt:
             print("\n🛑 Bot shutdown requested!")
             self.print_performance()

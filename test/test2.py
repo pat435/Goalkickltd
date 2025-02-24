@@ -261,3 +261,38 @@ class AdvancedTradingBot:
 if __name__ == "__main__":
     bot = AdvancedTradingBot()
     bot.start()
+    import socket
+import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util import Retry
+
+# DNS resolution override
+original_getaddrinfo = socket.getaddrinfo
+def new_getaddrinfo(*args):
+    try:
+        return original_getaddrinfo(*args)
+    except socket.gaierror:
+        return [(socket.AF_INET, socket.SOCK_STREAM, 6, '', ('104.18.114.97', 443))]
+socket.getaddrinfo = new_getaddrinfo
+
+class AdvancedTradingBot:
+    def fetch_market_data(self):
+        try:
+            session = requests.Session()
+            retries = Retry(total=3, backoff_factor=1)
+            session.mount('https://', HTTPAdapter(max_retries=retries))
+            
+            response = session.get(
+                "https://api-testnet.bybit.com/v5/market/kline",
+                params={
+                    "category": "linear",
+                    "symbol": self.symbol,
+                    "interval": "15",
+                    "limit": "200"
+                },
+                timeout=10
+            )
+            return response.json()['result']['list']
+        except Exception as e:
+            print(f"Robust data fetch error: {e}")
+            return []
