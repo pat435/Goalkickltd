@@ -1,0 +1,5 @@
+*.pyc 
+venv/ 
+.env 
+logs/* 
+!logs/.gitkeep 
