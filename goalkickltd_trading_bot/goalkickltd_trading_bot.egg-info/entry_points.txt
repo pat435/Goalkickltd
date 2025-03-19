@@ -1,0 +1,2 @@
+[console_scripts]
+goalkick-trading-bot = src.main:main

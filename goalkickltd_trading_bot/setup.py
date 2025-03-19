@@ -15,7 +15,7 @@ setup(
     description="A high-performance cryptocurrency trading bot",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/goalkickltd/trading-bot",
+    url="https://github.com/pat435/Goalkickltd",
     packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
