@@ -102,6 +102,15 @@ class DataStore:
                     metrics_json TEXT
                 )
                 ''')
+                cursor.execute('''
+                    CREATE TABLE IF NOT EXISTS strategies (
+                        id TEXT PRIMARY KEY,
+                        name TEXT NOT NULL,
+                        parameters TEXT NOT NULL,
+                        enabled BOOLEAN NOT NULL DEFAULT 1,
+                        last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                    ''')
                 
                 # Create signals table
                 cursor.execute('''
