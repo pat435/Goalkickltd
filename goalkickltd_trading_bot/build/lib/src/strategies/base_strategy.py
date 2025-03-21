@@ -442,8 +442,8 @@ class StrategyManager:
             bool: True if saved successfully
         """
         try:
-            # Serialize strategies as a list
-            serialized = [strategy.serialize() for strategy in self.strategies.values()]
+            # Serialize strategies
+            serialized = {strategy_id: strategy.serialize() for strategy_id, strategy in self.strategies.items()}
             
             # Save to datastore
             datastore.save_strategies(serialized)
@@ -454,7 +454,7 @@ class StrategyManager:
             logger.error(f"Error saving strategies: {e}")
             handle_error(e, "Failed to save strategies")
             return False
-        
+    
     def load_strategies(self, datastore, strategy_classes):
         """
         Load strategies from datastore.

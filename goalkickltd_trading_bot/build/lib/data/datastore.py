@@ -607,30 +607,24 @@ class DataStore:
         
         Args:
             strategies (list): List of strategy configurations to save
-            
-        Raises:
-            DataStoreError: If there's an error saving the strategies
         """
         try:
+            # Assuming you have a strategies table
             with self.get_connection() as conn:
                 cursor = conn.cursor()
                 for strategy in strategies:
                     cursor.execute("""
                         INSERT OR REPLACE INTO strategies 
-                        (id, name, parameters, enabled, last_updated)
-                        VALUES (?, ?, ?, ?, datetime('now'))
+                        (name, parameters, enabled, last_updated)
+                        VALUES (?, ?, ?, datetime('now'))
                     """, (
-                        strategy['id'],
                         strategy['name'],
-                        json.dumps(strategy['params']),
-                        strategy['active']
+                        json.dumps(strategy['parameters']),
+                        strategy['enabled']
                     ))
                 conn.commit()
-                logger.info(f"Successfully saved {len(strategies)} strategies")
         except Exception as e:
-            error_msg = f"Failed to save strategies: {str(e)}"
-            logger.error(error_msg)
-            raise DataStoreError(error_msg)
+            raise DataStoreError(f"Failed to save strategies: {str(e)}")
 
     def load_strategies(self):
         """
