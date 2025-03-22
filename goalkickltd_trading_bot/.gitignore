@@ -5,3 +5,4 @@ goal_kick_trading_bot_venv/
 .env 
 logs/* 
 !logs/.gitkeep
+.venv/
