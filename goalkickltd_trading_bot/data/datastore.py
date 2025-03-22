@@ -101,7 +101,7 @@ class DataStore:
                     current_drawdown REAL,
                     metrics_json TEXT
                 )
-                ''')
+                ''').venv\Scriot\activate
                 cursor.execute('''
                     CREATE TABLE IF NOT EXISTS strategies (
                         id TEXT PRIMARY KEY,
